@@ -6,4 +6,18 @@ inputs:
 runs:
   using: composite
   steps:
-    -
+    - run: |
+        import os
+
+        ## inputs
+        ipts = {
+          'where': os.environ['IPT__where'],
+          'ver': os.environ['ENV__ACTION_REF'],  # the Action version.
+        }
+
+        print('─'*99)
+        print(f"")
+      shell: python
+      env:
+        IPT__where: ${{ inputs.where }}
+        ENV__ACTION_REF: ${{ action.ref }}

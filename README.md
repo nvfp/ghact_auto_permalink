@@ -40,7 +40,3 @@ So, we just need to specify the commented `permalink` at line `2`, then during t
 Note: Please open the `action.yml` to learn more about the params.
 
 And that's it!
-
-## License
-
-MIT License. Feel free to use the code as you would like, have a great day!
