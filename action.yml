@@ -16,7 +16,8 @@ runs:
         }
 
         print('─'*99)
-        print(f"")
+        for k,v in os.environ.items():
+          print(f"{repr(k)}: {repr(v)}")
       shell: python
       env:
         IPT__where: ${{ inputs.where }}
