@@ -21,4 +21,4 @@ runs:
       shell: python
       env:
         IPT__where: ${{ inputs.where }}
-        ENV__ACTION_REF: ${{ action.ref }}
+        ENV__ACTION_REF: ${{ github.action_ref }}
