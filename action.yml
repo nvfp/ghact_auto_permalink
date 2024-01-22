@@ -1,0 +1,9 @@
+inputs:
+  where:
+    description: the "root" for the blog-like pages
+    required: true
+
+runs:
+  using: composite
+  steps:
+    -
