@@ -32,9 +32,10 @@ Now let's open one of the containers:
 So, we just need to specify the commented `permalink` at line `2`, then during the build, we will be using:
 
 ```yml
-- uses: nvfp/ghact_auto_permalink@a.b.c  # using the latest version is recommended
+- uses: nvfp/ghact_auto_permalink@a.b.c  # using the latest version OR main-branch is recommended
   with:
     where: ./foo/bar  # "bar" is the "root" for the blog-like pages
+    prefix: /blog/  # to make it "/blog/title_1", "/blog/title_2", etc.
 ```
 
 Note: Please open the `action.yml` to learn more about the params.

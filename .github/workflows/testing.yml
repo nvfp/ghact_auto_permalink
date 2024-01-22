@@ -5,6 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "hi"
-      - uses: nvfp/ghact_auto_permalink@main
-        with:
-          where: .
+      # - uses: nvfp/ghact_auto_permalink@main
+      #   with:
+      #     where: .

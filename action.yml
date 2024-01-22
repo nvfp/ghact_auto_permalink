@@ -2,23 +2,63 @@ inputs:
   where:
     description: the "root" for the blog-like pages
     required: true
+  prefix:
+    description: for the URL. for example, if "/blog/" -> "/blog/title_1", "/blog/title_2". if "/" (just slash), "/title_1", "/title_2", etc.
+    required: false
+    default: "/"
 
 runs:
   using: composite
   steps:
     - run: |
-        import os
+        import os, re, random
 
         ## inputs
         ipts = {
           'where': os.environ['IPT__where'],
-          'ver': os.environ['ENV__ACTION_REF'],  # the Action version.
+          'ver': os.environ['ENV__action_ref'],  # the Action version.
+          'act_repo': os.environ['ENV__action_repository'],
+          'prefix': os.environ['IPT__prefix'],
         }
 
         print('─'*99)
-        for k,v in os.environ.items():
-          print(f"{repr(k)}: {repr(v)}")
+        print(f"INFO: Running {ipts['act_repo']}({ipts['ver']}).")
+        print(f"DEBUG: (inputs) `where`: {ipts['ipts']}")
+        print(f"DEBUG: (inputs) `prefix`: {ipts['prefix']}")
+
+        ## get the abs.path
+        ABS_PTH = os.path.normpath(os.path.abspath(os.path.join(os.getcwd(), ipts['where'])))
+        print(f"DEBUG: repr(ABS_PTH): {repr(ABS_PTH)}")
+
+        ## checks
+        if not os.path.isdir(ABS_PTH): raise AssertionError(f"Not a dir: {repr(ABS_PTH)}")
+        if not ipts['prefix'].startswith('/'): raise AssertionError(f"The params `prefix` is should start with '/', this isnt: {repr(ipts['prefix'])}")
+
+        for year in os.listdir(ABS_PTH):
+          year_pth = os.path.join(ABS_PTH, year)
+          for container in os.listdir(year_pth):
+            cpth = os.path.join(year_pth, container)
+            md_pth = os.path.join(cpth, 'index.md')
+            if not os.path.isfile(md_pth): raise AssertionError(f"File index.md is not found: {repr(md_pth)}")  # checks
+            with open(md_pth, 'r') as f: text = f.read()  # read
+            ## <modify>
+            text = text.split('\n')
+            if not text[1].startswith('# permalink:'): raise AssertionError(f"The second line of index.md is should be '# permalink:'.")  # guard
+            res = re.match(r'^\d\d-\d\d-(?P<title>.+)$', container)
+            if res is None: raise AssertionError(f"The container name should have this pattern 'MM-DD-TITLE', this isn't: {repr(container)}")  # checks
+            title = res.group('title')
+            print(f"DEBUG: repr(title): {repr(title)}")
+            text[1] = f"permalink: {ipts['prefix']}{title}"
+            text = '\n'.join(text)
+            ## </modify>
+            print(f"INFO: Rewriting {repr(md_pth)}.")
+            with open(md_pth, 'w') as f: f.write(text)  # Save
+        
+        ACTION_BIO = f"{ipts['act_repo']}({ipts['ver']})"
+        print(f"─── {ACTION_BIO} finished... random.choice(['Goodbye!', 'Have a great day!'])")
       shell: python
       env:
         IPT__where: ${{ inputs.where }}
-        ENV__ACTION_REF: ${{ github.action_ref }}
+        ENV__action_ref: ${{ github.action_ref }}
+        ENV__action_repository: ${{ github.action_repository }}
+        IPT__prefix: ${{ inputs.prefix }}
